@@ -1,0 +1,87 @@
+from flask import Flask, request, jsonify, Response, send_from_directory
+from dataloader import Dataloader
+from split import Splitter
+from embedding import Embed
+from vectorestor import VectorStore
+from chains import Chain
+import os
+import json
+from flask_cors import CORS
+
+app = Flask(__name__, static_folder='../frontend/dist', static_url_path='')
+CORS(app, resources={r"/*": {"origins": "http://localhost:5173"}})
+
+data_dir = "./backend/data"
+db_dir = "./backend/db"
+embedding_model = "sentence-transformers/all-mpnet-base-v2"
+llm_model = "groq:llama-3.1-8b-instant"
+k_docs = 3
+
+rag_chain = None 
+
+def initialize_rag():
+    global rag_chain
+    
+    dataloader = Dataloader(data_dir)
+    splitter = Splitter(dataloader.documents)
+    embedder = Embed(embedding_model)
+    vectorstore = VectorStore(splitter.chunks, embedder.embed, db_dir)
+    retriever = vectorstore.vectorstore.as_retriever(search_kwargs={"k": k_docs})
+    rag_chain = Chain(model_name= llm_model).__ragChain__(retriever)
+
+    return True
+
+@app.route('/recommender', methods=['POST'])
+def query_endpoint():
+    try:
+        global rag_chain
+        
+        data = request.json
+        query = data['input_']
+        
+        response = rag_chain.invoke({"input" : query},config={"configurable" : {"session_id" : "user-session"}})["answer"]
+        return jsonify({"status": "success", "response": response})
+    except Exception as e:
+        print("QUERY ERROR:", e, flush=True)
+        return jsonify({"status": "error", "message": str(e)}), 500
+    
+
+@app.route('/initialize', methods=['POST'])
+def init_endpoint():
+    try:
+        config = request.json
+        global data_dir, db_dir, embedding_model, llm_model, k_docs
+        
+        if 'data_dir' in config:
+            data_dir = config['data_dir']
+        if 'db_dir' in config:
+            db_dir = config['db_dir']
+        if 'embedding_model' in config:
+            embedding_model = config['embedding_model']
+        if 'llm_model' in config:
+            llm_model = config['llm_model']
+        if 'k_docs' in config:
+            k_docs = int(config['k_docs'])
+            
+        initialize_rag()
+        return jsonify({"status": "success", "message": "RAG system initialized successfully"})
+    except Exception as e:
+        print("INIT ERROR:", e, flush=True)
+        return jsonify({"status": "error", "message": str(e)}), 500
+
+
+# Serve React app
+@app.route('/')
+def serve_react():
+    return send_from_directory(app.static_folder, 'index.html')
+
+@app.route('/<path:path>')
+def serve_static(path):
+    if os.path.exists(os.path.join(app.static_folder, path)):
+        return send_from_directory(app.static_folder, path)
+    return send_from_directory(app.static_folder, 'index.html')
+
+
+if __name__ == '__main__':
+    initialize_rag()
+    app.run(host='0.0.0.0', port=5000)
