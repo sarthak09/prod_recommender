@@ -1,0 +1,17 @@
+# Environment files
+.env
+*.env
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+db/
+
+# Node
+node_modules/
+dist/
+build/
+
+# Docker
+*.log

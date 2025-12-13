@@ -1,0 +1,99 @@
+#Build Docker Image or rebuilt
+docker build -t recommender_app .
+
+# to verify image created
+docker images
+
+# to remove images
+docker rmi <ID image>
+
+
+#run
+docker run -d --name recommender_app -p 5000:5000 --env-file ./backend/.env recommender_app
+"""
+-d = runs in background
+-p 5000:5000 = maps port 5000 (access via localhost:5000)
+--env-file = loads your API keys
+--name = names container "anime-app"
+"""
+
+# docker container
+docker ps
+
+# check logs
+docker logs recommender_app
+
+#stop docker container and remove the container
+docker stop anime-app && docker rm anime-app
+
+#inspect docker
+docker inspect recommender_app --format '{{json .Mounts}}'
+
+#stop all running containers
+docker stop $(docker ps -q)
+
+#remove all containers
+docker rm -f $(docker ps -aq)
+
+
+#restart docker container
+docker restart recommender_app
+
+
+###################
+docker-compose up -d
+docker-compose ps
+docker-compose logs -f
+
+docker-compose down
+docker-compose build
+docker-compose up -d
+
+
+docker-compose ps
+docker-compose logs
+
+
+
+
+
+
+
+github
+git checkout -b my-new-branch
+
+git add .
+git commit -m "Write a clear commit message here"
+
+git push -u origin my-new-branch
+
+
+
+
+git first push
+
+
+
+
+
+
+minikube
+kubectl apply -f k8.yaml
+minikube service llmops-service
+
+kubectl get pods
+kubectl get svc llmops-service
+
+minikube stop
+minikube start
+kubectl get nodes
+eval $(minikube docker-env)
+kubectl apply -f k8s.yaml
+kubectl get pods
+
+#to see service and note hte ports
+kubectl get svc
+
+
+
+
