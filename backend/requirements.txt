@@ -12,3 +12,4 @@ ipykernel
 flask 
 flask-cors 
 requests
+prometheus_client
