@@ -3,36 +3,36 @@ kind: Deployment
 metadata:
   name: recommender
   labels:
-    app: llmops
+    app: recommender
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: llmops
+      app: recommender
   template:
     metadata:
       labels:
-        app: llmops
+        app: recommender
     spec:
       containers:
-      - name: llmops-container
+      - name: recommender-container
         image: recommender:latest
         imagePullPolicy: IfNotPresent
         ports:
           - containerPort: 5000
         envFrom:
           - secretRef:
-              name: llmops-secrets 
+              name: recommender-secrets 
 
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: llmops-service
+  name: recommender-service
 spec:
   type: LoadBalancer
   selector:
-    app: llmops
+    app: recommender
   ports:
     - protocol: TCP
       port: 80

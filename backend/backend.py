@@ -10,8 +10,8 @@ import json
 from flask_cors import CORS
 
 app = Flask(__name__, static_folder='../frontend/dist', static_url_path='')
-CORS(app)
-
+#CORS(app)
+CORS(app, resources={r"/*": {"origins": "*"}})
 data_dir = "./backend/data"
 db_dir = "./backend/db"
 embedding_model = "sentence-transformers/all-mpnet-base-v2"

@@ -1,8 +1,8 @@
 import React, { useState, useRef, useEffect } from "react";
 import "./Recommender.css";
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000";
-
+//const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000";
+const API_BASE_URL = window.location.origin;  // Uses current host
 const Recommender = () => {
   const [messages, setMessages] = useState([
     {
@@ -39,7 +39,8 @@ const Recommender = () => {
     setLoading(true);
 
     try {
-      const res = await fetch(`${API_BASE_URL}/recommender`, {
+//      const res = await fetch(`${API_BASE_URL}/recommender`, {
+        const res = await fetch(`${API_BASE_URL}/recommender`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

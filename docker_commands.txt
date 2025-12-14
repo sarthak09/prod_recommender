@@ -54,7 +54,7 @@ docker-compose ps
 docker-compose logs
 
 
-
+##############################
 
 
 
@@ -77,15 +77,39 @@ git first push
 
 
 
-minikube
+#minikube
+#Check Cluster Status
+minikube status
+
+#start minikube
+minikube start
+
+# stop minikube
+minikube stop
+
+
+# get cluster info
+kubectl cluster-info
+
+# get all nodes
+kubectl get nodes
+kubectl get pods
+kubectl describr pods
+kubectl get deployments
+kubectl get services
+kubectl get secrets
+kubectl describe secret llmops-secrets
+
+
 kubectl apply -f k8.yaml
 minikube service llmops-service
 
 kubectl get pods
 kubectl get svc llmops-service
 
-minikube stop
-minikube start
+kubectl delete -f k8s.yaml
+kubectl apply -f k8s.yaml
+
 kubectl get nodes
 eval $(minikube docker-env)
 kubectl apply -f k8s.yaml
@@ -94,6 +118,29 @@ kubectl get pods
 #to see service and note hte ports
 kubectl get svc
 
+kubectl logs -f recommender-6c779d96d-gfpf9
+kubectl delete pod -l app=recommender
+kubectl get pods -w
+
+
+
+################################################################################
+Sequence after making chnages to the code
+eval $(minikube docker-env)
+docker build --no-cache -t recommender:latest .
+kubectl delete pod -l app=recommender
+kubectl get pods  #wait for it to be in running state
+
+kubectl get pods
+
+kubectl logs -l app=recommender -f
+
+# keep running this forever
+kubectl port-forward svc/recommender-service 5000:80 --address 0.0.0.0  
+
+POD_NAME=$(kubectl get pods -l app=recommender -o jsonpath='{.items[0].metadata.name}')
+kubectl exec -it $POD_NAME -- cat /app/backend/backend.py | head -20
+################################################################################
 
 
 # install docker
