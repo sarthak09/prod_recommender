@@ -3,6 +3,7 @@ from dataloader import Dataloader
 from split import Splitter
 from embedding import Embed
 from vectorestor import VectorStore
+from prometheus_client import Counter,generate_latest
 from chains import Chain
 import os
 import json
@@ -80,6 +81,10 @@ def serve_static(path):
     if os.path.exists(os.path.join(app.static_folder, path)):
         return send_from_directory(app.static_folder, path)
     return send_from_directory(app.static_folder, 'index.html')
+
+@app.route("/metrics")
+def metrics():
+    return Response(generate_latest(), mimetype="text/plain")
 
 
 if __name__ == '__main__':
